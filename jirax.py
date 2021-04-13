@@ -2,7 +2,7 @@ import csv
 from jira import JIRA
 from pydrive.auth import GoogleAuth
 from pydrive.drive import GoogleDrive
-
+import pandas as pd
 gauth = GoogleAuth()           
 drive = GoogleDrive(gauth)  
 
@@ -18,7 +18,7 @@ jira = JIRA(options, basic_auth=(user,apikey) )
 jql = 'project = CORPAU AND status = Done order by created DESC'
 data = jira.search_issues(jql)
 
-with open('audit-gen.csv', mode='w') as csv_file:
+with open('generated_csv/audit-gen.csv', mode='w') as csv_file:
     fieldnames = ['project', 'summary', 'reporter', 'status', 'timeestimate', 'timeoriginalestimate', 'aggregate progress', 'aggregate time estimate', 'aggregate time original estimate',\
                 'aggregate time spent', 'assignee', 'components', 'created', 'creator', 'description',\
                 'duedate', 'environment', 'fix versions', 'issue type', 'labels', 'last viewed', 'priority',\
@@ -65,9 +65,11 @@ with open('audit-gen.csv', mode='w') as csv_file:
             'workratio': issue.fields.workratio
         })
 
-upload_file_list = ['audit-gen.csv']
-for upload_file in upload_file_list:
-	gfile = drive.CreateFile({'parents': [{'id': '159uw04c7-pr3bekSOytVm5w3R-lWrsw2'}]})
-	gfile.SetContentFile(upload_file)
-	gfile.Upload()
+# upload_file_list = ['generated_csv/audit-gen.csv']
+# for upload_file in upload_file_list:
+# 	gfile = drive.CreateFile({'parents': [{'id': '159uw04c7-pr3bekSOytVm5w3R-lWrsw2'}]})
+# 	gfile.SetContentFile(upload_file)
+# 	gfile.Upload()
 
+a = pd.read_csv('generated_csv/audit-gen.csv')
+a.to_html("generated_html/audit-gen.html")
